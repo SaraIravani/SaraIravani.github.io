@@ -56,40 +56,94 @@ My contribution focused on platform and DevOps engineering. It did not mean owne
 
 ## Architecture
 
-The platform combined AWS infrastructure, Kubernetes workloads, and managed data services.
+The platform had two connected business flows: collecting and processing flight-pricing data from multiple sources, and serving customer requests through API workloads. The diagram separates the data flow from the external API access path and the Kubernetes/AWS configuration layer.
 
-```text
-Airline and Travel-Agency Data Sources
-                  |
-                  v
-       Ingestion Workloads
-          on Amazon EKS
-                  |
-                  v
-       Data Processing Workloads
-          on Amazon EKS
-                  |
-          +-------+-------+
-          |               |
-          v               v
-      Amazon S3       Amazon RDS
-    Object Storage    PostgreSQL
-                          ^
-                          |
-                    API Workloads
-                    on Amazon EKS
+<figure style="margin: 1.5rem 0;">
+  <svg viewBox="0 0 1000 1010" role="img" aria-labelledby="yekta-architecture-title yekta-architecture-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;max-width:1000px;margin:0 auto;">
+    <title id="yekta-architecture-title">Yekta flight-pricing platform architecture</title>
+    <desc id="yekta-architecture-desc">Two flows are shown: external flight and travel-agency data is ingested and processed on EKS, then stored in S3 and RDS PostgreSQL; B2B customer requests enter through an ALB and reach API workloads. Ingress rules and the AWS Load Balancer Controller are shown as the configuration layer for the ALB. A Kubernetes Service provides stable in-cluster access to selected API pods.</desc>
+    <defs>
+      <marker id="yekta-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#64748b"/></marker>
+      <marker id="yekta-arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/></marker>
+    </defs>
+    <rect x="1" y="1" width="998" height="1008" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="500" y="36" text-anchor="middle" font-size="21" font-weight="700" fill="#0f172a">YEKTA FLIGHT-PRICING PLATFORM</text>
+    <text x="500" y="60" text-anchor="middle" font-size="13" fill="#475569">High-level architecture • data platform and customer API</text>
 
+    <rect x="290" y="82" width="420" height="66" rx="12" fill="#e2e8f0" stroke="#94a3b8"/>
+    <text x="500" y="109" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">Airline and travel-agency sources</text>
+    <text x="500" y="130" text-anchor="middle" font-size="13" fill="#334155">External flight and pricing data</text>
+    <path d="M500 148 V177" stroke="#64748b" stroke-width="2.5" marker-end="url(#yekta-arrow)"/>
 
-Delivery Workflow:
-GitHub → Jenkins → Docker Build → Amazon ECR
+    <rect x="290" y="183" width="420" height="68" rx="12" fill="#dbeafe" stroke="#60a5fa"/>
+    <text x="500" y="211" text-anchor="middle" font-size="17" font-weight="700" fill="#1e3a8a">Data-ingestion workloads</text>
+    <text x="500" y="233" text-anchor="middle" font-size="13" fill="#1e40af">Amazon EKS • containerized workloads</text>
+    <path d="M500 251 V280" stroke="#64748b" stroke-width="2.5" marker-end="url(#yekta-arrow)"/>
 
-Infrastructure:
-Terraform → AWS Resources
-```
+    <rect x="290" y="286" width="420" height="68" rx="12" fill="#dbeafe" stroke="#60a5fa"/>
+    <text x="500" y="314" text-anchor="middle" font-size="17" font-weight="700" fill="#1e3a8a">Data-processing workloads</text>
+    <text x="500" y="336" text-anchor="middle" font-size="13" fill="#1e40af">Processing and batch capacity on EKS</text>
+    <path d="M500 354 V378 H255 V401" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#yekta-arrow)"/>
+    <path d="M500 378 H745 V401" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#yekta-arrow)"/>
 
-Amazon EKS provided the orchestration layer for containerized application workloads. Amazon RDS and S3 supported the platform's data requirements, while Amazon ECR stored container images used by Kubernetes workloads.
+    <rect x="90" y="407" width="330" height="82" rx="12" fill="#dcfce7" stroke="#4ade80"/>
+    <text x="255" y="439" text-anchor="middle" font-size="19" font-weight="700" fill="#14532d">Amazon S3</text>
+    <text x="255" y="463" text-anchor="middle" font-size="14" fill="#166534">Object storage</text>
+    <rect x="580" y="407" width="330" height="82" rx="12" fill="#dcfce7" stroke="#4ade80"/>
+    <text x="745" y="439" text-anchor="middle" font-size="19" font-weight="700" fill="#14532d">Amazon RDS</text>
+    <text x="745" y="463" text-anchor="middle" font-size="14" fill="#166534">PostgreSQL • relational data</text>
 
-The infrastructure and delivery layers had different responsibilities: Terraform managed infrastructure, while the container delivery workflow handled source changes, builds, and image publication.
+    <text x="500" y="532" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">Customer API access path</text>
+    <rect x="45" y="553" width="210" height="70" rx="12" fill="#e2e8f0" stroke="#94a3b8"/>
+    <text x="150" y="581" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">B2B customers</text>
+    <text x="150" y="603" text-anchor="middle" font-size="13" fill="#334155">HTTPS API requests</text>
+    <path d="M255 588 H300" stroke="#2563eb" stroke-width="2.5" marker-end="url(#yekta-arrow-blue)"/>
+
+    <rect x="310" y="553" width="210" height="70" rx="12" fill="#dbeafe" stroke="#60a5fa"/>
+    <text x="415" y="581" text-anchor="middle" font-size="18" font-weight="700" fill="#1e3a8a">AWS ALB</text>
+    <text x="415" y="603" text-anchor="middle" font-size="13" fill="#1e40af">HTTP/HTTPS routing</text>
+    <path d="M520 588 H565" stroke="#2563eb" stroke-width="2.5" marker-end="url(#yekta-arrow-blue)"/>
+
+    <rect x="575" y="553" width="365" height="70" rx="12" fill="#dbeafe" stroke="#60a5fa"/>
+    <text x="757" y="581" text-anchor="middle" font-size="18" font-weight="700" fill="#1e3a8a">API workloads on EKS</text>
+    <text x="757" y="603" text-anchor="middle" font-size="13" fill="#1e40af">ALB forwards to configured targets</text>
+
+    <rect x="575" y="647" width="365" height="68" rx="12" fill="#f1f5f9" stroke="#94a3b8"/>
+    <text x="757" y="674" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">API Pods</text>
+    <text x="757" y="696" text-anchor="middle" font-size="13" fill="#334155">Replicas can scale independently</text>
+    <path d="M757 623 V641" stroke="#64748b" stroke-width="2.5" marker-end="url(#yekta-arrow)"/>
+
+    <rect x="60" y="647" width="455" height="68" rx="12" fill="#fef3c7" stroke="#f59e0b"/>
+    <text x="287" y="674" text-anchor="middle" font-size="17" font-weight="700" fill="#92400e">Kubernetes Service (ClusterIP)</text>
+    <text x="287" y="696" text-anchor="middle" font-size="13" fill="#92400e">Stable in-cluster endpoint for selected API Pods</text>
+    <path d="M515 681 H565" stroke="#64748b" stroke-width="2.5" marker-end="url(#yekta-arrow)"/>
+
+    <text x="500" y="757" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">Ingress configuration layer</text>
+    <rect x="75" y="779" width="360" height="74" rx="12" fill="#ede9fe" stroke="#a78bfa"/>
+    <text x="255" y="808" text-anchor="middle" font-size="17" font-weight="700" fill="#5b21b6">Kubernetes Ingress</text>
+    <text x="255" y="831" text-anchor="middle" font-size="13" fill="#6d28d9">Declares host/path routing rules</text>
+    <rect x="565" y="779" width="360" height="74" rx="12" fill="#ede9fe" stroke="#a78bfa"/>
+    <text x="745" y="808" text-anchor="middle" font-size="17" font-weight="700" fill="#5b21b6">AWS Load Balancer Controller</text>
+    <text x="745" y="831" text-anchor="middle" font-size="13" fill="#6d28d9">Watches resources and configures ALB</text>
+    <path d="M435 816 H558" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#yekta-arrow)"/>
+    <path d="M745 779 V740 H415 V630" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#yekta-arrow)"/>
+    <text x="500" y="873" text-anchor="middle" font-size="12" fill="#6d28d9">Dashed arrows = configuration/control relationship, not request traffic</text>
+
+    <rect x="55" y="897" width="890" height="83" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="75" y="922" font-size="14" font-weight="700" fill="#0f172a">Platform delivery and operations</text>
+    <text x="75" y="946" font-size="13" fill="#334155">GitHub → Jenkins → Docker build → Amazon ECR</text>
+    <text x="75" y="966" font-size="13" fill="#334155">Terraform → AWS infrastructure • Prometheus / Grafana → monitoring</text>
+  </svg>
+  <figcaption style="margin-top:0.75rem;color:#64748b;font-size:0.92rem;line-height:1.5;">
+    <strong>How to read this architecture:</strong> the upper flow collects and processes source data before storing it in S3 and RDS. The lower flow serves B2B API requests through the ALB to the configured API targets. Ingress declares routing rules, while the AWS Load Balancer Controller watches Kubernetes resources and configures the ALB. The Service provides a stable in-cluster endpoint for API pods. The exact ALB target type and traffic path depend on the cluster configuration.
+  </figcaption>
+</figure>
+
+Amazon EKS provided the orchestration layer for containerized application workloads. Amazon RDS and S3 supported the platform’s data requirements, while Amazon ECR stored container images used by Kubernetes workloads.
+
+The diagram is a high-level architecture view. It separates the application data path from the control relationship used to configure load balancing; the exact target type and routing details depend on the deployed configuration.
+
+Delivery and infrastructure workflows remained separate: Terraform managed AWS infrastructure, while GitHub and Jenkins supported source changes, builds, and image publication.
 
 ## Kubernetes Workload Isolation
 
