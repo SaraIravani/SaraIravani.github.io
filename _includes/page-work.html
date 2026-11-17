@@ -34,21 +34,6 @@
   </div>
 </section>
 
-<section class="work-secondary-case" aria-labelledby="work-ad-title">
-  <div class="work-secondary-case-copy">
-    <p class="work-eyebrow">ENTERPRISE IT · IDENTITY &amp; ACCESS</p>
-    <h2 id="work-ad-title">Active Directory &amp; Infrastructure — Mahan Air</h2>
-    <p>Production experience creating and administering a software department subdomain, managing users, security groups, Group Policy, workstation access, and VMware systems; followed by a transition toward centralized monitoring.</p>
-    <a class="work-featured-link" href="{{ '/work/mahan-air-active-directory/' | relative_url }}">Explore the case study <span aria-hidden="true">↗</span></a>
-  </div>
-  <div class="work-secondary-case-aside">
-    <span>ACTIVE DIRECTORY</span>
-    <span>GROUP POLICY</span>
-    <span>WINDOWS SERVER</span>
-    <span>VMWARE · ELK · SCOM</span>
-  </div>
-</section>
-
 <section class="work-secondary-case" aria-labelledby="work-onprem-title">
   <div class="work-secondary-case-copy">
     <p class="work-eyebrow">{{ t.work.onprem_label }}</p>
@@ -113,6 +98,16 @@
   <h3 class="project-category-title"><span>03</span> Security &amp; DevSecOps</h3>
   <div class="project-grid">
     {% for project in security_projects %}{% include work-entry.html item=project %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% assign enterprise_projects = projects | where: 'category', 'Enterprise IT & Infrastructure' %}
+{% if enterprise_projects.size > 0 %}
+<section class="project-category">
+  <h3 class="project-category-title"><span>04</span> Enterprise IT &amp; Infrastructure</h3>
+  <div class="project-grid">
+    {% for project in enterprise_projects %}{% include work-entry.html item=project %}{% endfor %}
   </div>
 </section>
 {% endif %}
