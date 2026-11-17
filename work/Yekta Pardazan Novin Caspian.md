@@ -19,6 +19,8 @@ technologies:
   - IAM
   - Prometheus
   - Grafana
+cover: "/images/yekta-platform-cover.svg"
+cover_alt: "Illustrative AWS EKS flight-pricing platform with Terraform, Jenkins, and AWS data services"
 permalink: /work/yekta-pardazan/
 ---
 
