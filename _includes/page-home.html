@@ -4,7 +4,7 @@
 {% assign work_only = site.pages
   | where: 'lang', current_lang
   | where_exp: 'item', 'item.url contains "/work/"'
-  | where_exp: 'item', 'item.slug != "example-project"'
+  | where_exp: 'item', 'item.slug != "example-project" and item.slug != "mahan-air-active-directory"'
 %}
 
 <section class="home-hero">
