@@ -19,6 +19,8 @@ technologies:
   - Grafana
   - Rancher
   - Calico
+cover: "/images/tata-platform-cover.svg"
+cover_alt: "Illustrative on-premises Kubernetes platform with Bamboo CI/CD, JFrog artifacts, and monitoring"
 permalink: /work/tata-tejarat-bank/
 ---
 
